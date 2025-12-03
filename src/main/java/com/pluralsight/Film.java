@@ -2,8 +2,11 @@ package com.pluralsight;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 
+import java.util.List;
+
 public class Film {
-    public static void main(String[] args) {
+
+    public static <ActorID> void main(String[] args) {
 
         BasicDataSource dataSource = new BasicDataSource();
         dataSource.setUrl("jdbc:mysql://localhost:3306/sakila");
@@ -12,8 +15,8 @@ public class Film {
 
         SakilaMoviesDataManager dataManager = new SakilaMoviesDataManager(dataSource);
 
-        String actorID = dataManager.getActorID();
+        List<ActorID> actorId = (List<ActorID>) dataManager.getActorID();
 
-        System.out.println(actorID);
+        actorId.forEach(System.out::println);
     }
 }

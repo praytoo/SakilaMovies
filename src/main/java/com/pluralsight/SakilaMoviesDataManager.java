@@ -5,6 +5,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class SakilaMoviesDataManager {
@@ -15,7 +17,8 @@ public class SakilaMoviesDataManager {
         public SakilaMoviesDataManager(DataSource dataSource){
         this.dataSource = dataSource;
         }
-        public String getActor() {
+        public List<Actor> getActor() {
+            List<Actor> actor = new ArrayList<>();
             String input3 = ("What is the first name of the actor you would like to see the movies of?");
             System.out.println(input3);
             String firstName = scanner.nextLine();
@@ -34,7 +37,12 @@ public class SakilaMoviesDataManager {
                     boolean results = false;
                         while (resultSet.next()) {
                             results = true;
-                            System.out.println(" Actor ID: " + resultSet.getInt("actor_id") + "\n " + "First Name: " + resultSet.getString("first_name") + "\n " + "Last Name: " + resultSet.getString("last_name") + "\n-----------");
+                            int actor_id = resultSet.getInt("actor_id");
+                            String first_name = resultSet.getString("first_name");
+                            String last_name = resultSet.getString("last_name");
+
+                            Actor actor1 = new Actor(actor_id, first_name, last_name);
+                            actor.add(actor1);
                         }if (!results){
                         System.out.println("No results were found");
                     }
@@ -44,12 +52,13 @@ public class SakilaMoviesDataManager {
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
-            return firstName + " " + lastName;
+            return actor;
         }
-        public String getActorID() {
+        public List<ActorID> getActorID() {
+            List<ActorID> actorId = new ArrayList<>();
             String input2 = ("What is the actor ID of the actor you would like to see the movies of?");
             System.out.println(input2);
-            String actorId = scanner.nextLine();
+            int actorId2 = Integer.parseInt(scanner.nextLine());
 
             try (Connection connection = dataSource.getConnection();
                  PreparedStatement preparedStatement = connection.prepareStatement("SELECT * " +
@@ -60,17 +69,23 @@ public class SakilaMoviesDataManager {
                          "ON fa.film_id = f.film_id " +
                          "WHERE a.actor_id = ? ;");) {
 
-                preparedStatement.setString(1, actorId);
+                preparedStatement.setInt(1, actorId2);
 
                 try (ResultSet resultSet = preparedStatement.executeQuery();) {
 
-                    if (resultSet.next()) {
-                        System.out.println("Your matches are: \n");
-
+                    boolean results = false;
                         while (resultSet.next()) {
-                            System.out.println(" Film ID: " + resultSet.getInt("film_id") + "\n " + "Title: " + resultSet.getString("title") + "\n " + "Description: " + resultSet.getString("description") + "\n " + "Release Year: " + resultSet.getInt("release_year") + "\n " + "Movie Length: " + resultSet.getInt("length") + "\n-----------");
+                            results = true;
+                            int film_Id = resultSet.getInt("film_id");
+                            String title = resultSet.getString("title");
+                            String description = resultSet.getString("description");
+                            int release_year = resultSet.getInt("release_year");
+                            int movie_length = resultSet.getInt("length");
+
+                            ActorID actorID = new ActorID(film_Id, title, description, release_year, movie_length);
+                            actorID.add(actorId);
                         }
-                    } else {
+                    if (!results){
                         System.out.println("No matches!");
                     }
                 }
@@ -80,14 +95,10 @@ public class SakilaMoviesDataManager {
             return actorId;
         }
 
+
         /*public Actor actor(){
             Actor actor = new Actor();
             return actor;
-        }
-
-        public Film actorId(){
-            Film actorId = new Film();
-            return actorId;
         }
          */
 }
